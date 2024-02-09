@@ -33,6 +33,9 @@ router.get("/", async (req, res) => {
 
     // Renderiza a página com os dados recuperados do banco de dados
     res.render(path.join(__dirname, "views", "pages", "index"), { data: result.rows });
+
+    // Imprime o resultado da consulta no console
+    console.log("Resultado da consulta:", result.rows);
   } catch (error) {
     // Imprime o erro no console caso ocorra algum problema na consulta
     console.error("Erro ao consultar banco de dados:", error);
