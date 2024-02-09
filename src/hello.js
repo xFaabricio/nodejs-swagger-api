@@ -22,15 +22,14 @@ router.set("view engine", "ejs");
 router.use(express.static(path.join(__dirname, "views/pages")));
 
 router.get("/", async (req, res) => {
+  let client; // Variável para armazenar a conexão do cliente
+
   try {
-    // Verifica se a conexão do banco de dados foi aberta
-    console.log("Conexão do banco de dados aberta.");
+    // Adquire uma conexão do pool
+    client = await pool.connect();
 
     // Executa a consulta SQL
-    const result = await pool.query("SELECT * FROM sh_user");
-    
-    // Imprime o resultado da consulta no console
-    console.log("Resultado da consulta:", result.rows);
+    const result = await client.query("SELECT * FROM sh_user");
 
     // Renderiza a página com os dados recuperados do banco de dados
     res.render(path.join(__dirname, "views", "pages", "index"), { data: result.rows });
@@ -38,6 +37,11 @@ router.get("/", async (req, res) => {
     // Imprime o erro no console caso ocorra algum problema na consulta
     console.error("Erro ao consultar banco de dados:", error);
     res.status(500).send("Erro interno do servidor");
+  } finally {
+    // Libera a conexão de volta para o pool
+    if (client) {
+      client.release(); // ou client.end();
+    }
   }
 });
 
